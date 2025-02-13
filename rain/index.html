@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>אֵיךְ נוֹצָר גֶּשֶׁם?</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background-image: url('https://cdn.pixabay.com/photo/2023/10/30/19/10/clouds-8353592_1280.jpg');
+            background-size: cover;
+            background-position: center;
+            font-family: Arial, sans-serif;
+			direction: rtl;
+            text-align: right;
+        }
+		.content, .quiz, .videos {
+			background: rgba(255, 255, 255, 0.9);
+			padding: 15px;
+			padding-right: 20px; /* הוספתי ריווח מימין */
+			border-radius: 10px;
+			margin: 10px auto;
+			width: 85%;
+			max-width: 700px;
+			font-size: 20px;
+			line-height: 1.6;
+			white-space: pre-line;
+		}
+
+		p {
+			margin-right: 40px; /* מוסיף ריווח קטן מימין */
+		}
+
+        .audio-button {
+            font-size: 16px;
+            padding: 8px;
+            border: none;
+            background: #42a5f5;
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .videos {
+            order: -1;
+        }
+        img {
+            display: block;
+            margin: 1px auto;
+            max-width: 100%;
+            height: auto;
+        }
+		.quiz div {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1px;
+        }
+        h2 {
+            text-align: center;
+			margin-top: 0px;
+            margin-bottom: 0px;
+        }
+		.highlight {
+            background-color: lightgray;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+    </style>
+    <script>
+		function speakText(elementIds) {
+			if ('speechSynthesis' in window) {
+				let elements = elementIds.map(id => document.getElementById(id));
+				let textList = elements.map(el => el.innerText.replace(/\p{Emoji}/gu, '')); // Remove emojis for speech but keep them visually
+				let speechQueue = [];
+
+				textList.forEach((text, index) => {
+					let words = text.split(/\s+/);
+					let speech = new SpeechSynthesisUtterance(text);
+					speech.lang = 'he-IL';
+					speech.rate = 0.5;
+					speech.pitch = 1;
+					let voices = window.speechSynthesis.getVoices();
+					speech.voice = voices.find(voice => voice.lang === "he-IL") || voices[0];
+
+					let wordIndex = 0;
+
+					speech.onboundary = function(event) {
+						if (event.name === 'word') {
+							wordIndex = text.slice(0, event.charIndex).split(/\s+/).length - 1;
+
+							elements[index].innerHTML = elements[index].innerText.split(/\s+/).map((word, i) => {
+								return i === wordIndex ? `<span class='highlight'>${word}</span>` : word;
+							}).join(" ");
+						}
+					};
+
+					speech.onend = function() {
+						elements[index].innerHTML = elements[index].innerText; // Restore text after reading
+						if (speechQueue.length > 0) {
+							window.speechSynthesis.speak(speechQueue.shift());
+						}
+					};
+
+					speechQueue.push(speech);
+				});
+
+				window.speechSynthesis.cancel();
+				setTimeout(() => { if (speechQueue.length > 0) window.speechSynthesis.speak(speechQueue.shift()); }, 100);
+			} else {
+				alert("הדפדפן שלך לא תומך בהקראת טקסט.");
+			}
+		}
+		function checkAnswer(button, isCorrect) {
+            if (isCorrect) {
+                button.style.backgroundColor = "green";
+                button.style.color = "white";
+                alert("נכון! תשובה נכונה 🎉");
+            } else {
+                button.style.backgroundColor = "red";
+                button.style.color = "white";
+                alert("לא נכון, נסה שוב ❌");
+            }
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <h1>אֵיךְ נוֹצָר גֶּשֶׁם?</h1>
+    </header>
+
+    <main>
+        <section class="content">
+            <h2 id="rain-title">אֵיךְ נוֹצַר גֶשֶׁם?</h2>
+            <img src="https://media.istockphoto.com/id/1257951336/photo/transparent-umbrella-under-rain-against-water-drops-splash-background-rainy-weather-concept.jpg?s=612x612&w=0&k=20&c=lNvbIw1wReb-owe7_rMgW8lZz1zElqs5BOY1AZhyRXs=" alt="גֶּשֶׁם יוֹרֵד">
+            <p id="rain-text">כַּאָשֶׁר הַשֶׁמֶשׁ מְחַמֶמֶת אֶת הַיָם. הַמַיִם מַתְחִילִים לְהִתְאַדוֹת וְהוֹפְכִים לְאֵדִים בִּלְתִי נִרְאִים. תַהָלִיךְ זֶה נִקְרָא אִדוּי. הָאֵדִים עוֹלִים מַעְלָה לַשָׁמַיִם לְגֹבַה רַב. שָׁם קַר יוֹתֵר, וְהָאֵדִים הוֹפְכִים בַּחָזָרָה לְטִפּוֹת מַיִם קְטַנְטַנוֹת. תַהָלִיךְ זֶה נִקְרָא עִבּוּי. כַּאָשֶׁר טִפּוֹת הַמַיִם מִתְאַחָדוֹת וְנַעָשׂוֹת כְּבֵדוֹת, הֵן נוֹפְלוֹת לָאָדָמָה בְּצוּרַת גֶשֶׁם.</p>
+            <button class="audio-button" onclick="speakText(['rain-title', 'rain-text'])">🔊</button>
+        </section>
+
+        <section class="content">
+            <h2 id="cloud-title">אֵיךְ נוֹצָרִים עָנָנִים?</h2>
+            <img src="https://media.istockphoto.com/id/184103864/photo/clouds-on-sky.jpg?s=612x612&w=0&k=20&c=3JGI13B8xwZIObLtl8IN1VFtPErHv2pKiWV0tTuemsI=" alt="עננים בשמיים">
+            <p id="cloud-text">כַּאָשֶׁר אָוִיר חַם הַמַכִיל אֵדֵי מַיִם עוֹלֶה לְמַעְלָה. הוּא מִתְקָרֵר. בְּגֹבַה רַב הָאֵדִים הוֹפְכִים בַּחָזָרָה לְטִפּוֹת מַיִם קְטַנְטַנוֹת מְאוֹד. הֵן מִצְטָרְפוֹת יַחַד וְיוֹצְרוֹת עָנָנִים.</p>
+            <button class="audio-button" onclick="speakText(['cloud-title','cloud-text'])">🔊</button>
+        </section>
+
+        <section class="content">
+            <h2  id="lightning-title">בָּרָק וְרַעַם</h2>
+            <img src="https://media.istockphoto.com/id/180132155/photo/lightning-over-field.jpg?s=612x612&w=0&k=20&c=3ygJTNQ1B48-Zr5MTt-uzRV7zjIGX2IScfJlliGxHN0=" alt="ברק בשמיים">
+            <p id="lightning-text">בָּעָנָנִים יֵשׁ טִפּוֹת מַיִם וגבישֵׁי קֶרַח קְטַנִים מְאוֹד. הֵם נָעִים במהירות. כַּאָשֶׁר הֵם מִתְנַגְשִׁים זֶה בָּזֶה, נוֹצָר מִטְעָן חַשְׁמַלִי. כְּשֶׁהַמִטְעָן הַחַשְׁמַלִי גָדֵל מַסְפִּיק, הוּא פּוֹרֵק אֶת האנרגיה בְּצוּרַת אוֹר חָזָק, זֶהוּ הַבָּרָק.  לְאַחַר שֶׁהַבָּרָק מוֹפִיעַ, הָאָוִיר סְבִיבוֹ מִתְחַמֵם במהירות. זֶה גוֹרֵם לוֹ לְהִתְפַּשֵׁט במהירות, מָה שֶׁיוֹצֵר אֶת הַקוֹל הֶחָזָק שֶׁאָנַחְנוּ מַכִּירִים בְּתוֹר רַעַם.</p>
+            <button class="audio-button" onclick="speakText(['lightning-title','lightning-text'])">🔊</button>
+        </section>
+
+        <section class="videos">
+            <h2>סִרְטוֹנִים מֻמְלָצִים</h2>
+            <a href="https://www.youtube.com/watch?v=s0bS-SBAgJI" target="_blank">🎥 איך נוצר גשם?</a>
+            <a href="https://www.youtube.com/watch?v=ncORPosDrjI" target="_blank">🎥 מחזור המים בכדור הארץ</a>
+            <a href="https://www.youtube.com/watch?v=VqXnN_FQfrc" target="_blank">🎥 איך נוצרים ברקים?</a>
+        </section>
+
+        <section class="quiz">
+            <h2>שְׁאֵלוֹת</h2>
+            <p id="q1">מָה גוֹרֵם לָאֵדִים לַעָלוֹת לְמַעְלָה?</p>
+			<button class="audio-button" onclick="speakText(['q1', 'a1', 'a2', 'a3'])">🔊</button>
+			<div>				
+				<button id="a1" onclick="checkAnswer(this, false)">🌪️ רוּחוֹת חָזָקוֹת</button>
+				<button id="a2" onclick="checkAnswer(this, true)">🌞 חֹם הַשֶׁמֶשׁ</button>
+				<button id="a3" onclick="checkAnswer(this, false)">❄️ קֹר עַז</button>
+			</div>
+        </section>
+
+        <section class="quiz">
+            <p id="q2">מָה קוֹרֶה לְטִפּוֹת מַיִם כַּאָשֶׁר הֵן מִתְקָרְרוֹת?</p>
+			<button class="audio-button" onclick="speakText(['q2', 'a4', 'a5', 'a6'])">🔊</button>
+			<div>
+				<button id="a4" onclick="checkAnswer(this, false)">🔥 הֵן נֶעֶלָמוֹת</button>
+				<button id="a5" onclick="checkAnswer(this, true)">🌧️ הֵן מִתְגַבְּשׁוֹת לְעָנָן</button>
+				<button id="a6" onclick="checkAnswer(this, false)">💨 הֵן מִתְאַדוֹת שׁוּב</button>
+			</div>
+        </section>
+
+        <section class="quiz">
+            <p id="q3">מַדוּעַ הָעָנָנִים הוֹפְכִים כֵּהִים לִפְנֵי גֶשֶׁם?</p>
+			<button class="audio-button" onclick="speakText(['q3', 'a7', 'a8', 'a9'])">🔊</button>
+			<div>
+				<button id="a7" onclick="checkAnswer(this, true)">☁️ הֵם מְלֵאִים בְּטִפּוֹת מַיִם כְּבֵדוֹת</button>
+				<button id="a8" onclick="checkAnswer(this, false)">🌪️ יֵשׁ רוּחוֹת חָזָקוֹת</button>
+				<button id="a9" onclick="checkAnswer(this, false)">🌞 הַשֶׁמֶשׁ זוֹרַחַת חָזָק יוֹתֵר</button>
+			</div>
+        </section>
+
+        <section class="quiz">
+            <p id="q4">מָה קוֹרֶה לָאָוִיר סְבִיב בָּרָק?</p>
+			<button class="audio-button" onclick="speakText(['q4', 'a10', 'a11', 'a12'])">🔊</button>
+			<div>
+				<button id="a10" onclick="checkAnswer(this, false)">❄️ הוּא מִתְקָרֵר וְנִהְיָה כָּבֵד יוֹתֵר</button>
+				<button id="a11" onclick="checkAnswer(this, true)">🔥 הוּא מִתְחַמֵם וּמִתְפַּשֵׁט בִּמְהִירוּת</button>
+				<button id="a12" onclick="checkAnswer(this, false)">💨 הוּא נָע בִּמְהִירוּת לְכֹל הַכִּוֻנִים</button>
+			</div>
+        </section>
+    </main>
+</body>
+</html>
