@@ -3,7 +3,7 @@ function speakText(elementId) {
         let text = document.getElementById(elementId).innerText;
         let speech = new SpeechSynthesisUtterance(text);
         speech.lang = 'he-IL';
-        speech.rate = 0.9;
+        speech.rate = 1;
         speech.pitch = 1;
         window.speechSynthesis.speak(speech);
     } else {
